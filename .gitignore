@@ -1,2 +1,3 @@
 background.jpg
 *.pyc
+*/__pycache__
