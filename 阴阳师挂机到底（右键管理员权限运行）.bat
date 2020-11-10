@@ -1,2 +1,2 @@
-# e:&cd E:\python\yys\easy-game-master\&
+cd /d %~dp0
 python run.py

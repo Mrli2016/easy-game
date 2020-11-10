@@ -20,7 +20,7 @@ def yaoqi(hwnd):
     print(f"=== 开始运行妖气封印 ===")
     fun_name = sys._getframe().f_code.co_name   # 获取当前方法名
     baseImg = f"./images/{fun_name}/"  # 储存的图片文件夹
-    bg = baseImg+"blackground.jpg"
+    bg = baseImg+"background.jpg"
 
     num = 1
     star_time = int(time.time())
@@ -47,7 +47,7 @@ def yaoqi(hwnd):
                 print(f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())} 妖气封印开始第{num}次战斗 等待了：{(int(time.time()) - star_time)/60}分钟")
                 click_random(ready, hwnd)
                 num += 1
-                time.sleep(3)
+                time.sleep(20)
         # 失败
         # fail = matchImg(bg, baseImg+"fail.png", 0.9)
         # if fail:
