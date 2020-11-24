@@ -17,4 +17,5 @@ def matchImg(imgsrc, imgobj, confidence=None):  # imgsrc=原始图像，imgobj=�
         # print(match_result)
         match_result['shape'] = (imsrc.shape[1], imsrc.shape[0])  # 0为高，1为宽
 
+        # print(imobj, match_result)
     return match_result

@@ -43,9 +43,11 @@ def main():
 
     fun = None
     if task_num == 0:
+        # 自动妖气封印
         from task.yaoqi import yaoqi
         fun = yaoqi
     elif task_num == 1:
+        # 自动结界突破
         from task.jiejie import jiejie
         fun = jiejie
     elif task_num == 2:
@@ -57,8 +59,16 @@ def main():
         from task.douji import douji
         fun = douji
     elif task_num == 4:
+        # 自动寮突破
         from task.liaotupo import liaotupo
         fun = liaotupo
+    elif task_num == 5:
+        # 自动御灵
+        from task.yuling import yuling
+        fun = yuling
+    elif task_num == 8:
+        from task.shishen import shishen
+        fun = shishen
     
     if fun:
         gevent.joinall([  # 利用joinall方法将每一步操作加入协程池中

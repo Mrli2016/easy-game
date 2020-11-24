@@ -1,6 +1,7 @@
 import os
 import sys
 import random
+import gevent
 import time
 import win32gui
 
@@ -51,6 +52,6 @@ def douji(hwnd):
             click_random(ready, hwnd)
             num += 1
             print(f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())} 开始进行第{num}场战斗")
-            time.sleep(10)
+            gevent.sleep(10)
 
-        time.sleep(3)
+        gevent.sleep(3)

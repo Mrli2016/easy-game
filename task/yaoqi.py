@@ -2,6 +2,7 @@ import os
 import sys
 import random
 import time
+import gevent
 import win32gui
 
 from util import WindowCapture
@@ -42,15 +43,20 @@ def yaoqi(hwnd):
             if pipei:
                 star_time = int(time.time())
                 click_random(pipei, hwnd)
-            ready = matchImg(bg, baseImg+"ready.png", 0.8)
+            start = matchImg(bg, baseImg+"start.png", 0.9) # 房主的情况下需要点击挑战
+            if start:
+                click_random(start, hwnd)
+            ready = matchImg(bg, baseImg+"ready.png", 0.9)
             if ready:
+                gevent.sleep(2)
                 print(f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())} 妖气封印开始第{num}次战斗 等待了：{(int(time.time()) - star_time)/60}分钟")
                 click_random(ready, hwnd)
                 num += 1
-                time.sleep(20)
+                gevent.sleep(10)
+
         # 失败
         # fail = matchImg(bg, baseImg+"fail.png", 0.9)
         # if fail:
         #     print(f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())} 战斗失败")
         #     click_random(fail, hwnd)
-        time.sleep(3)
+        gevent.sleep(3)

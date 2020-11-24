@@ -2,6 +2,7 @@ import os
 import sys
 import random
 import time
+import gevent
 import win32gui
 
 from util import WindowCapture
@@ -12,8 +13,8 @@ from task.public import public
 def click_random(point, hwnd):
     """传入点击坐标 进行随机点击"""
     rect = win32gui.GetWindowRect(hwnd)
-    x = int(rect[0] + point["result"][0]+ (random.randint(1, 3) * 2))
-    y = int(rect[1] + point["result"][1] + (random.randint(1, 3) * 2))
+    x = int(rect[0] + point["result"][0] - (random.randint(1, 3) * 2))
+    y = int(rect[1] + point["result"][1] - (random.randint(1, 3) * 2))
     click_it((x, y), hwnd)
 
 def liaotupo(hwnd):
@@ -32,12 +33,17 @@ def liaotupo(hwnd):
 
         public(bg, hwnd)    # 处理公共事务
 
-        watch = matchImg(bg, baseImg+"watch.png", 0.9)
+        fight = matchImg(bg, baseImg+"fight.png", 0.98)
+        if fight:
+            click_random(fight, hwnd)
+
+        watch = matchImg(bg, baseImg+"watch.png", 1)
         if watch:
             click_random(watch, hwnd)
-            time.sleep(2)
+            gevent.sleep(2)
 
-            to_watch = matchImg(bg, baseImg+"to_watch.png", 0.9)
+            to_watch = matchImg(bg, baseImg+"to_watch.png", 0.8)
+            print(to_watch)
             if to_watch:
                 click_random(to_watch, hwnd)
 
@@ -46,14 +52,14 @@ def liaotupo(hwnd):
             print(f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())} 寮突破开始第{num}次战斗")
             click_random(ready, hwnd)
             num += 1
-            time.sleep(3)
+            gevent.sleep(3)
         else:
             take_help = matchImg(bg, baseImg+"help.png", 0.8)
             if take_help:
                 print(f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())} 开始第{num}次助威")
                 click_random(take_help, hwnd)
                 num += 1
-                time.sleep(3)
+                gevent.sleep(3)
         
         win = matchImg(bg, baseImg+"win.png", 0.9)
         if win:
@@ -72,4 +78,4 @@ def liaotupo(hwnd):
         # if fail:
         #     print(f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())} 战斗失败")
         #     click_random(fail, hwnd)
-        time.sleep(3)
+        gevent.sleep(3)

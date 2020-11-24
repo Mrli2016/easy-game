@@ -2,6 +2,7 @@ import os
 import sys
 import random
 import time
+import gevent
 import win32gui
 
 from util import WindowCapture
@@ -44,4 +45,4 @@ def summon(hwnd):
             print(f"普通召唤卷已用完，任务执行完毕")
             stop = True
 
-        time.sleep(3)
+        gevent.sleep(3)

@@ -2,6 +2,7 @@ import os
 import sys
 import random
 import time
+import gevent
 import win32gui
 
 from util import WindowCapture
@@ -49,7 +50,7 @@ def jiejie(hwnd):
         target = matchImg(bg, baseImg+"target.png", 0.9)
         if target:
             click_random(target, hwnd)
-            time.sleep(3)
+            gevent.sleep(3)
 
             WindowCapture.window_capture(bg, hwnd)  # 重新截图，点击进攻按钮
             attack = matchImg(bg, baseImg+"attack.png", 0.9)
@@ -60,10 +61,10 @@ def jiejie(hwnd):
                 refresh = matchImg(bg, baseImg+"refresh.png", 0.9)
                 if refresh:
                     click_random(refresh, hwnd)
-                    time.sleep(3)
+                    gevent.sleep(3)
 
                     sure = matchImg(bg, baseImg+"sure.png", 0.9)
                     if sure:
                         click_random(sure, hwnd)
 
-        time.sleep(3)
+        gevent.sleep(3)

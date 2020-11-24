@@ -16,7 +16,7 @@ def click_random(point, hwnd):
     y = int(rect[1] + point["result"][1] + (random.randint(1, 3) * 2))
     click_it((x, y), hwnd)
 
-def public(bg, hwnd):
+def public(bg, hwnd, auto_ready=False):
     """处理公共事务，包括悬赏"""
     baseImg = f"./images/public/"  # 储存的图片文件夹
 
@@ -33,6 +33,11 @@ def public(bg, hwnd):
             refuse = matchImg(bg, baseImg+"refuse.png", 0.9)
             if refuse:
                 click_random(refuse, hwnd)
+    if auto_ready:  # 自动准备
+        ready = matchImg(bg, baseImg+"ready.png", 0.9)
+        if ready:
+            click_random(ready, hwnd)
+
     win = matchImg(bg, baseImg+"win.png", 0.9)
     if win:
         click_random(win, hwnd)
