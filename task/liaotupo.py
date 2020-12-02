@@ -33,7 +33,7 @@ def liaotupo(hwnd):
 
         public(bg, hwnd)    # 处理公共事务
 
-        fight = matchImg(bg, baseImg+"fight.png", 0.98)
+        fight = matchImg(bg, baseImg+"fight.png", 0.98, rgb=True)
         if fight:
             click_random(fight, hwnd)
 
