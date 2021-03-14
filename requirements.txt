@@ -1,4 +1,7 @@
-pywin32
-numpy
-opencv-python
-aircv
+pywin32~=228
+numpy~=1.19.2
+opencv-python~=4.4.0.44
+aircv~=1.4.6
+Pillow~=8.0.1
+opencv_contrib_python==3.4.2.16
+win32gui

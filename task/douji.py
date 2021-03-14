@@ -1,57 +1,43 @@
+"""
+自动斗技
+"""
 import os
-import sys
-import random
-import gevent
-import time
-import win32gui
 
-from util import WindowCapture
-from util.MatchImg import matchImg
-from util.Cursor import click_it
-from task.public import public
+from task.AutoRobot import Robot
+from util.Cursor import my_sleep
+from util.tools import PublicPos
 
-def click_random(point, hwnd):
-    """传入点击坐标 进行随机点击"""
-    rect = win32gui.GetWindowRect(hwnd)
-    x = int(rect[0] + point["result"][0] - (random.randint(1, 3) * 2))
-    y = int(rect[1] + point["result"][1] - (random.randint(1, 3) * 2))
-    click_it((x, y), hwnd)
 
-def douji(hwnd):
-    print("请输入自动斗技的场数(默认3场)：")
-    maxnum = int(input("")) or 3
+class DouJi(Robot):
 
-    print(f"=== 开始自动进行斗技({maxnum}) ===")
-    fun_name = sys._getframe().f_code.co_name   # 获取当前方法名
-    baseImg = f"./images/{fun_name}/"  # 储存的图片文件夹
-    bg = baseImg+"background.jpg"
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.task_name = "自动斗技"
+        self.douji_num = 0
+        self.douji_max_num = 5
 
-    num = 0
-    while num < maxnum:
-        try:
-            WindowCapture.window_capture(bg, hwnd)  # 对整个屏幕截图，并保存截图为baseImg
-        except Exception as e:
-            print(e)
+    def pre_start(self):
+        # self.window_full_shot("F:/code/yys2/images/bg.png")
+        print("输入自动斗技次数？")
+        self.douji_max_num = int(input("次数：")) or 5
 
-        public(bg, hwnd)    # 处理公共事务
+        self.logging.info(f"开始进行自动打斗技")
 
-        fight = matchImg(bg, baseImg+"fight.png", 0.9)
-        if fight:
-            click_random(fight, hwnd)
-        
-        shoudong = matchImg(bg, baseImg+"shoudong.png", 0.9)
-        if shoudong:
-            click_random(shoudong, hwnd)
-        
-        honor = matchImg(bg, baseImg+"honor.png", 0.9)
-        if honor:
-            click_random(honor, hwnd)
+    def runner(self):
+        if self.douji_num > self.douji_max_num:
+            self.logging.info("自动斗技任务执行完毕")
+            self.take_stop()
+            my_sleep(3000)
+            return
 
-        ready = matchImg(bg, baseImg+"ready.png", 0.9)
+        self.find_and_click(os.path.join(self.tpl_dir, "fight.png"))     # 选择突破目标
+        self.find_and_click(os.path.join(self.tpl_dir, "shoudong.png"))
+        self.find_and_click(os.path.join(self.tpl_dir, "honor.png"))
+        self.find_and_click(os.path.join(self.tpl_dir, "ready.png"))
+
+        ready = self.find_img_knn(os.path.join(self.tpl_dir, "ready.png"))
         if ready:
-            click_random(ready, hwnd)
-            num += 1
-            print(f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())} 开始进行第{num}场战斗")
-            gevent.sleep(10)
+            self.yys.mouse_click_bg(*PublicPos.ready_btn)
+            self.douji_num += 1
+            self.logging.info(f"开始进行第{num}场斗技战斗")
 
-        gevent.sleep(3)

@@ -1,62 +1,46 @@
+"""
+妖气封印
+"""
 import os
-import sys
-import random
 import time
-import gevent
-import win32gui
 
-from util import WindowCapture
-from util.MatchImg import matchImg
-from util.Cursor import click_it
-from task.public import public
+from task.AutoRobot import Robot
+from util.time_tools import subtime
 
-def click_random(point, hwnd):
-    """传入点击坐标 进行随机点击"""
-    rect = win32gui.GetWindowRect(hwnd)
-    x = int(rect[0] + point["result"][0]+ (random.randint(1, 3) * 2))
-    y = int(rect[1] + point["result"][1] + (random.randint(1, 3) * 2))
-    click_it((x, y), hwnd)
 
-def yaoqi(hwnd):
-    print(f"=== 开始运行妖气封印 ===")
-    fun_name = sys._getframe().f_code.co_name   # 获取当前方法名
-    baseImg = f"./images/{fun_name}/"  # 储存的图片文件夹
-    bg = baseImg+"background.jpg"
+class YaoQi(Robot):
 
-    num = 1
-    star_time = int(time.time())
-    while True:
-        try:
-            WindowCapture.window_capture(bg, hwnd)  # 对整个屏幕截图，并保存截图为baseImg
-        except Exception as e:
-            print(e)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.task_name = "妖气封印"
+        self.yaoqi_star_time = int(time.time())
+        self.yaoqi_num = 0
 
-        public(bg, hwnd)    # 处理公共事务
+    def pre_start(self):
+        self.yaoqi_star_time = int(time.time())
+        self.yaoqi_num = 0
 
-        finding = matchImg(bg, baseImg+"finding.png", 0.9)
-        if not finding:
+        self.logging.info(f"开始进行自动排队妖气封印！")
+
+    def runner(self):
+        target = self.find_img_knn(os.path.join(self.tpl_dir, "finding.png"))
+        if not target:
             # 如果不是匹配中则进行组队匹配
-            zudui = matchImg(bg, baseImg+"zudui.png", 0.9)
-            if zudui:
-                click_random(zudui, hwnd)
-            pipei = matchImg(bg, baseImg+"pipei.png", 0.9)
-            if pipei:
-                star_time = int(time.time())
-                click_random(pipei, hwnd)
-            start = matchImg(bg, baseImg+"start.png", 0.9) # 房主的情况下需要点击挑战
-            if start:
-                click_random(start, hwnd)
-            ready = matchImg(bg, baseImg+"ready.png", 0.9)
-            if ready:
-                gevent.sleep(2)
-                print(f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())} 妖气封印开始第{num}次战斗 等待了：{(int(time.time()) - star_time)/60}分钟")
-                click_random(ready, hwnd)
-                num += 1
-                gevent.sleep(10)
-
-        # 失败
-        # fail = matchImg(bg, baseImg+"fail.png", 0.9)
-        # if fail:
-        #     print(f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())} 战斗失败")
-        #     click_random(fail, hwnd)
-        gevent.sleep(3)
+            target = self.find_img_knn(os.path.join(self.tpl_dir, "zudui.png"))
+            if target:
+                self.yys.mouse_click_bg(target)
+                return
+            target = self.find_img_knn(os.path.join(self.tpl_dir, "pipei.png"))
+            if target:
+                self.yaoqi_star_time = time.time()
+                self.yys.mouse_click_bg(target)
+                return
+            target = self.find_img_knn(os.path.join(self.tpl_dir, "start.png"))
+            if target:
+                # 房主的情况下需要点击挑战
+                self.yys.mouse_click_bg(target)
+                return
+            target = self.find_img_knn(os.path.join(self.tpl_dir, "ready.png"))
+            if target:
+                self.yaoqi_num += 1
+                self.logging.info(f"妖气封印开始第{self.yaoqi_num}次战斗 排队等待了：{subtime(time.time(), self.yaoqi_star_time)}")

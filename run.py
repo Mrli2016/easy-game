@@ -1,92 +1,62 @@
-import sys
 import time
-import gevent
+
+from task.douji import DouJi
+from task.juexing import JueXing
+from task.liaotupo import LiaoTuPo
+from task.liaoyan import LiaoYan
+from task.summon import Summon
+from task.yaoqi import YaoQi
+from task.yuhun import Yuhun
+from task.jiejie import Jiejie
 
 from util.HwndList import get
 
+
 def main():
-    print("欢迎来到阴阳师联盟！")
-
-    #  X = 1009.0
-    # global Y = 604.0
-
-    arg = 0
-    tt = 5
-    if sys.argv.__len__() > 1:  #多人组队
-        arg = sys.argv[1]
-    else:
-        tt = 1
-    #获取所有阴阳师句柄
+    # 获取所有阴阳师句柄
     hd_list = get()
     hd_len = len(hd_list)
-    target_hd = hd_list[0]
-    if hd_len > 1:
+
+    if hd_len == 0:
+        print("未发现阴阳师窗口！")
+        raise SystemExit
+    elif hd_len == 1:
+        target_hd = hd_list[0]
+    else:
         for inx, hd in enumerate(hd_list):
-            print(f'窗口{inx+1}: {hd}')
+            print(f'窗口{inx + 1}: {hd}')
 
         num = int(input(f'当前有{hd_len}个阴阳师窗口，请选择要运行的窗口：') or 1) - 1
         if not hd_list[num]:
-            print('窗口选择失败，请重新选择')
+            print('窗口选择失败，请重新运行')
+            time.sleep(3000)
             raise SystemExit
         target_hd = hd_list[num]
-    
-        
+
     print('当前运行的阴阳师窗口：', target_hd)
     print('选择运行脚本类型：')
-    task_list = ['妖气封印', '结界突破', '厕纸自动召唤', '自动斗技', '寮突破', '自动御灵', '自动御魂', '自动觉醒']
+    task_list = [
+        {'name': "自动御魂", 'cls': Yuhun, "tpl_dir": "yuhun"},
+        {"name": "自动斗技", 'cls': DouJi, "tpl_dir": "douji"},
+        {"name": "自动觉醒", "cls": JueXing, "tpl_dir": "juexing"},
+        {"name": "结界突破", 'cls': Jiejie, "tpl_dir": "jiejie"},
+        {"name": "妖气封印", 'cls': YaoQi, "tpl_dir": "yaoqi"},
+        {"name": "自动寮破", 'cls': LiaoTuPo, "tpl_dir": "liaotupo"},
+        {"name": "自动寮宴", 'cls': LiaoYan, "tpl_dir": "liaoyan"},
+        {"name": "厕纸召唤", 'cls': Summon, "tpl_dir": "summon"},
+    ]
+    for inx, task in enumerate(task_list):
+        print(f"{inx + 1}、{task.get('name')}")
+    try:
+        task_num = int(input("输入任务类型：") or 1) - 1
+    except ValueError:
+        task_num = 0
 
-    for inx, name in enumerate(task_list):
-        print(f"{inx+1}、{name}")
+    task = task_list[task_num]
+    task_cls = task.get("cls")
+    func = task_cls(hwnd=target_hd, task_name=task.get("name"), tpl_dir=task.get("tpl_dir"))
+    func.start()
 
-    task_num = int(input("输入任务类型：") or 1) - 1
 
-    fun = None
-    if task_num == 0:
-        # 自动妖气封印
-        from task.yaoqi import yaoqi
-        fun = yaoqi
-    elif task_num == 1:
-        # 自动结界突破
-        from task.jiejie import jiejie
-        fun = jiejie
-    elif task_num == 2:
-        # 厕纸自动召唤
-        from task.summon import summon
-        fun = summon
-    elif task_num == 3:
-        # 自动斗技
-        from task.douji import douji
-        fun = douji
-    elif task_num == 4:
-        # 自动寮突破
-        from task.liaotupo import liaotupo
-        fun = liaotupo
-    elif task_num == 5:
-        # 自动御灵
-        from task.yuling import yuling
-        fun = yuling
-    elif task_num == 6:
-        # 自动御魂
-        from task.yuhun import yuhun
-        fun = yuhun
-    elif task_num == 7:
-        # 自动觉醒
-        from task.juexing import juexing
-        fun = juexing
-    elif task_num == 8:
-        from task.shishen import shishen
-        fun = shishen
-    
-    if fun:
-        gevent.joinall([  # 利用joinall方法将每一步操作加入协程池中
-            gevent.spawn(fun, target_hd)
-        ])
-
-if __name__=="__main__":
+if __name__ == "__main__":
     main()
-
-
-
-
-
-

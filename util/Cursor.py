@@ -1,12 +1,16 @@
 import win32api
 import win32gui
+import time
+import random
+import cv2
 from ctypes import windll
 
 import win32con
 
 
-def clickLeftCur():
+def click_left_cur():
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN | win32con.MOUSEEVENTF_LEFTUP, 0, 0)
+
 
 def leftDown(pos, hd):
     handle = hd
@@ -15,12 +19,14 @@ def leftDown(pos, hd):
     win32gui.SendMessage(handle, win32con.WM_ACTIVATE, win32con.WA_ACTIVE, 0)
     win32gui.SendMessage(handle, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, tmp)
 
+
 def leftUp(pos, hd):
     handle = hd
     client_pos = win32gui.ScreenToClient(handle, pos)
     tmp = win32api.MAKELONG(client_pos[0], client_pos[1])
     win32gui.SendMessage(handle, win32con.WM_ACTIVATE, win32con.WA_ACTIVE, 0)
     win32gui.SendMessage(handle, win32con.WM_LBUTTONUP, win32con.MK_LBUTTON, tmp)
+
 
 def click_it(pos, hd):
     handle = hd
@@ -38,7 +44,24 @@ def moveCurPos(x, y):  # 移动鼠标
 def getCurPos():  # 获得鼠标位置信息，这个再实际代码没用上，调试用得上
     return win32gui.GetCursorPos()
 
+
 def dragCur(param, hd):
     leftDown((param[0], param[1]), hd)
     leftUp((param[0], param[1]), hd)
 
+
+def my_sleep(slpa, slpb=0):
+    """
+    randomly sleep for a short time between `slpa` and `slpa + slpb` \n
+    because of the legacy reason, slpa and slpb are in millisecond
+    """
+    if slpb == 0:
+        slp = random.randint(int(0.5 * slpa), int(1.5 * slpa))
+    else:
+        slp = random.randint(slpa, slpa + slpb)
+    time.sleep(slp / 1000)
+
+
+def show_img(img):
+    cv2.imshow("image", img)
+    cv2.waitKey(0)

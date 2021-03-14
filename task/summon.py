@@ -1,48 +1,27 @@
+""""厕纸召唤"""
 import os
-import sys
-import random
-import time
-import gevent
-import win32gui
 
-from util import WindowCapture
-from util.MatchImg import matchImg
-from util.Cursor import click_it
-from task.public import public
+from task.AutoRobot import Robot
+from util.tools import YuhunPos
 
-def click_random(point, hwnd):
-    """传入点击坐标 进行随机点击"""
-    rect = win32gui.GetWindowRect(hwnd)
-    x = int(rect[0] + point["result"][0] - (random.randint(1, 3) * 2))
-    y = int(rect[1] + point["result"][1] - (random.randint(1, 3) * 2))
-    click_it((x, y), hwnd)
 
-def summon(hwnd):
-    print(f"=== 开始进行自动召唤（请进入召唤界面） ===")
-    fun_name = sys._getframe().f_code.co_name   # 获取当前方法名
-    baseImg = f"./images/{fun_name}/"  # 储存的图片文件夹
-    bg = baseImg+"background.jpg"
+class Summon(Robot):
 
-    stop = False
-    while not stop:
-        try:
-            WindowCapture.window_capture(bg, hwnd)  # 对整个屏幕截图，并保存截图为baseImg
-        except Exception as e:
-            print(e)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.task_name = "厕纸召唤"
 
-        public(bg, hwnd)    # 处理公共事务
+    def pre_start(self):
+        self.logging.info(f"开始进行自动召唤！")
 
-        normal = matchImg(bg, baseImg+"normal.png", 0.9)  # 进入普通召唤
+    def runner(self):
+        normal = self.find_img_knn(os.path.join(self.tpl_dir, "normal.png"))  # 房主的情况下需要点击挑战
         if normal:
-            click_random(normal, hwnd)
+            self.yys.mouse_click_bg(*YuhunPos.fight_btn)
         else:
-            again = matchImg(bg, baseImg+"again.png", 0.9)  # 进行再次召唤
-            if again:
-                click_random(again, hwnd)
+            self.find_and_click(os.path.join(self.tpl_dir, "again.png"))
 
-        end = matchImg(bg, baseImg+"end.png", 0.98)
+        end = self.find_img_knn(os.path.join(self.tpl_dir, "end.png"), 0.98)  # 房主的情况下需要点击挑战
         if end:
-            print(f"普通召唤卷已用完，任务执行完毕")
-            stop = True
-
-        gevent.sleep(3)
+            self.logging.info("普通召唤卷已用完，任务执行完毕")
+            self.take_stop()

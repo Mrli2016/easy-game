@@ -1,39 +1,30 @@
-"""御灵"""
+"""
+御魂
+"""
 import os
-import sys
-import random
-import time
-import gevent
-import win32gui
 
-from util import WindowCapture
-from util.MatchImg import matchImg
-from util.Cursor import click_it
-from task.public import public
+from task.AutoRobot import Robot
+from util.tools import YuhunPos
 
-def click_random(point, hwnd):
-    """传入点击坐标 进行随机点击"""
-    rect = win32gui.GetWindowRect(hwnd)
-    x = int(rect[0] + point["result"][0] - (random.randint(1, 3) * 2))
-    y = int(rect[1] + point["result"][1] - (random.randint(1, 3) * 2))
-    click_it((x, y), hwnd)
 
-def yuhun(hwnd):
-    print(f"=== 开始运行魂土自动 ===")
-    fun_name = sys._getframe().f_code.co_name   # 获取当前方法名
-    baseImg = f"./images/{fun_name}/"  # 储存的图片文件夹
-    bg = baseImg+"background.jpg"
+class Yuhun(Robot):
 
-    while True:
-        try:
-            WindowCapture.window_capture(bg, hwnd)  # 对整个屏幕截图，并保存截图为baseImg
-        except Exception as e:
-            print(e)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.task_name = "自动御魂"
+        self.yuhun_single_mode = False
+        self.yuhun_fight_btn = "fight.png"
 
-        public(bg, hwnd, auto_ready=True)    # 处理公共事务
+    def pre_start(self):
+        print("是否单人模式刷御魂？")
+        answer = input("Y/N？：").lower()
 
-        tiaozhan = matchImg(bg, baseImg+"tiaozhan.png", 0.9) # 房主的情况下需要点击挑战
-        if tiaozhan:
-            click_random(tiaozhan, hwnd)
+        if answer == "y" or answer == "yes":
+            self.yuhun_single_mode = True
+            self.yuhun_fight_btn = "single_fight.png"
+        self.logging.info(f"开始进行自动御魂！{'(个人模式)' if self.yuhun_single_mode else '（多人模式）'}")
 
-        gevent.sleep(3)
+    def runner(self):
+        fight = self.find_img_knn(os.path.join(self.tpl_dir, self.yuhun_fight_btn))  # 房主的情况下需要点击挑战
+        if fight:
+            self.yys.mouse_click_bg(*YuhunPos.fight_btn)
